@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .otp-code {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            letter-spacing: 5px;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h2>Welcome to Hire Me!</h2>
+    <p>Thank you for registering. Please verify your email address by entering the following verification code:</p>
+    
+    <div class="otp-code">{{ otp }}</div>
+    
+    <p>This code will expire in 5 minutes.</p>
+    
+    <p>If you didn't request this verification, please ignore this email.</p>
+    
+    <div class="footer">
+        <p>This is an automated message, please do not reply to this email.</p>
+    </div>
+</body>
+</html> 
