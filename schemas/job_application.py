@@ -1,27 +1,32 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
+from .job import Job
+from .user import User
 
 
 class JobApplicationBase(BaseModel):
-    email: EmailStr
+    job_id: int
+    email: str
     phone: str
     current_ctc: str
     expected_ctc: str
     notice_period: str
-    resume_path: str
 
 
 class JobApplicationCreate(JobApplicationBase):
-    job_id: int
+    pass
 
 
 class JobApplication(JobApplicationBase):
     id: int
-    job_id: int
     applicant_id: int
+    resume_path: str
+    status: str = "pending"  # pending, reviewed, accepted, rejected
     created_at: datetime
     updated_at: Optional[datetime] = None
+    job: Job
+    applicant: User
 
     class Config:
         from_attributes = True

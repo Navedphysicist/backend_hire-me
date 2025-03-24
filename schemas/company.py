@@ -5,13 +5,13 @@ from datetime import datetime
 
 class CompanyBase(BaseModel):
     company_name: str
-    company_description: str
-    remote: str
-    company_location: str
-    company_type: str
-    industry_type: str
-    business_nature: str
-    employee_count: str
+    company_description: Optional[str] = None
+    remote: Optional[str] = None
+    company_location: Optional[str] = None
+    company_type: Optional[str] = None
+    industry_type: Optional[str] = None
+    business_nature: Optional[str] = None
+    employee_count: Optional[str] = None
 
 
 class CompanyCreate(CompanyBase):

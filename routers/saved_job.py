@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List
 from db.database import get_db
 from models.user import DbUser
@@ -14,7 +14,6 @@ router = APIRouter(
     prefix="/saved-jobs",
     tags=["Saved Jobs"]
 )
-
 
 
 @router.post("/", response_model=SavedJob)
@@ -43,7 +42,7 @@ async def save_job(
         )
 
     db_saved_job = DbSavedJob(
-        **saved_job.dict(),
+        **saved_job.model_dump(),
         user_id=current_user.id
     )
     db.add(db_saved_job)
@@ -59,7 +58,9 @@ async def read_saved_jobs(
     db: Session = Depends(get_db),
     current_user: DbUser = Depends(get_current_user)
 ):
-    saved_jobs = db.query(DbSavedJob).filter(
+    saved_jobs = db.query(DbSavedJob).options(
+        joinedload(DbSavedJob.job)
+    ).filter(
         DbSavedJob.user_id == current_user.id
     ).offset(skip).limit(limit).all()
     return saved_jobs

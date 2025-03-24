@@ -20,6 +20,7 @@ app.include_router(job_application.router, tags=["Job Applications"])
 app.include_router(saved_job.router, prefix="/saved-jobs", tags=["Saved Jobs"])
 app.include_router(contact.router, tags=["Contact"])
 
+
 @app.get("/")
 def root():
     return {
@@ -27,4 +28,3 @@ def root():
         "docs": "/docs",  # Swagger UI endpoint
         "redoc": "/redoc"  # ReDoc endpoint
     }
-

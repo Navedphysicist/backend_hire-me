@@ -1,50 +1,102 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email - Hire Me</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
+            background-color: #f3f6fa;
+            margin: 0;
+            padding: 0;
         }
         .container {
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            padding: 20px;
-            margin-top: 20px;
+            width: 100%;
+            max-width: 500px;
+            background-color: #ffffff;
+            margin: 30px auto;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
         }
-        .otp-code {
-            background-color: #e9ecef;
-            padding: 10px;
-            border-radius: 5px;
+        .logo {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        .logo img {
+            max-width: 130px;
+        }
+        .title {
             font-size: 24px;
             font-weight: bold;
-            text-align: center;
-            margin: 20px 0;
+            color: #2c3e50;
+        }
+        .subtitle {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        .otp-box {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c89ff;
+            margin: 25px 0;
+            padding: 15px 30px;
+            border: 2px dashed #2c89ff;
+            display: inline-block;
+            background-color: #eaf3ff;
             letter-spacing: 5px;
+            border-radius: 6px;
+        }
+        .message {
+            font-size: 15px;
+            color: #555555;
+            margin: 20px 0;
+            line-height: 1.6;
         }
         .footer {
-            margin-top: 30px;
             font-size: 12px;
-            color: #666;
+            color: #999999;
+            margin-top: 30px;
+            line-height: 1.6;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        .support-link {
+            color: #2c89ff;
+            text-decoration: none;
+        }
+        .support-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <h2>Welcome to Hire Me!</h2>
-    <p>Thank you for registering. Please verify your email address by entering the following verification code:</p>
-    
-    <div class="otp-code">{{ otp }}</div>
-    
-    <p>This code will expire in 5 minutes.</p>
-    
-    <p>If you didn't request this verification, please ignore this email.</p>
-    
-    <div class="footer">
-        <p>This is an automated message, please do not reply to this email.</p>
+    <div class="container">
+        <div class="logo">
+            <img src="https://hireme.com/logo.png" alt="Hire Me Logo">
+        </div>
+        <div class="title">Welcome to Hire Me!</div>
+        <p class="subtitle">Your journey to new opportunities begins now.</p>
+        
+        <p class="message">
+            Thanks for joining Hire Me! To help you connect with top opportunities and talent, please verify your email address using the code below:
+        </p>
+        
+        <div class="otp-box">{{otp}}</div>
+
+        <p class="message">
+            This code is valid for the next 5 minutes.<br>
+            Enter it on the verification page to complete your sign-up.
+        </p>
+
+        <p class="footer">
+            Didn’t sign up for Hire Me? Just ignore this email.<br>
+            Need help? Contact us at <a class="support-link" href="mailto:support@hireme.com">support@hireme.com</a><br>
+            © 2025 Hire Me. All rights reserved.
+        </p>
     </div>
 </body>
-</html> 
+</html>

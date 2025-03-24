@@ -41,6 +41,18 @@ def get_jobs(
     return query.offset(skip).limit(limit).all()
 
 
+@router.get("/posted_jobs", response_model=List[JobSchema])
+async def get_posted_jobs(
+    db: Session = Depends(get_db),
+    current_user: DbUser = Depends(get_current_user)
+):
+    return db.query(DbJob).options(
+        joinedload(DbJob.applications)
+    ).filter(
+        DbJob.creator_id == current_user.id
+    ).all()
+
+
 @router.get("/{job_id}", response_model=JobSchema)
 def get_job(job_id: int, db: Session = Depends(get_db)):
     job = db.query(DbJob).filter(DbJob.id == job_id).first()
@@ -55,25 +67,41 @@ async def create_job(
     db: Session = Depends(get_db),
     current_user: DbUser = Depends(get_current_user)
 ):
-    # First, create or get the company
+    # First, check if the company exists
     company = db.query(DbCompany).filter(
         DbCompany.company_name == job.company_name,
         DbCompany.owner_id == current_user.id
     ).first()
 
     if not company:
-        # Create new company if it doesn't exist
-        company = DbCompany(
-            name=job.company_name,
-            avatar=job.company_avatar,
-            owner_id=current_user.id
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={
+                "message": "Company not found",
+                "error": "You need to register your company first before posting jobs",
+                "solution": "Please create your company profile."
+            }
         )
-        db.add(company)
-        db.commit()
-        db.refresh(company)
+
+    # Check if company has required fields
+    if not company.company_description or not company.company_location:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "message": "Incomplete company profile",
+                "error": "Your company profile is incomplete",
+                "solution": "Please complete your company profile before posting jobs",
+                "missing_fields": [
+                    field for field in ["company_description", "company_location"]
+                    if not getattr(company, field)
+                ]
+            }
+        )
 
     # Create the job with the company_id
     db_job = DbJob(
+        company_name=job.company_name,
+        company_avatar=job.company_avatar,
         company_id=company.id,
         job_title=job.job_title,
         job_description=job.job_description,
@@ -86,19 +114,18 @@ async def create_job(
         creator_id=current_user.id
     )
 
-    db.add(db_job)
-    db.commit()
-    db.refresh(db_job)
-    return db_job
-
-
-@router.get("/posted_jobs", response_model=List[JobSchema])
-async def get_posted_jobs(
-    db: Session = Depends(get_db),
-    current_user: DbUser = Depends(get_current_user)
-):
-    return db.query(DbJob).options(
-        joinedload(DbJob.applications)
-    ).filter(
-        DbJob.creator_id == current_user.id
-    ).all()
+    try:
+        db.add(db_job)
+        db.commit()
+        db.refresh(db_job)
+        return db_job
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "message": "Failed to create job",
+                "error": str(e),
+                "solution": "Please try again or contact support if the issue persists"
+            }
+        )
