@@ -7,9 +7,7 @@ from models.company import DbCompany
 from models.job import DbJob
 from schemas.company import CompanyCreate, Company as CompanySchema
 from schemas.job import Job as JobSchema
-from schemas.user import UserBase
 from utils.token_utils import get_current_user
-from routers.auth import oauth2_scheme
 
 router = APIRouter(
     prefix="/companies",
