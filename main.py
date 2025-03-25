@@ -12,7 +12,7 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Hire Me API",
-    description="API for Health Connect application",
+    description="API for Hire Me application",
     version="1.0.0"
 )
 
