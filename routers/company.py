@@ -129,7 +129,8 @@ async def create_company(
         filepath = os.path.join(AVATAR_DIR, filename)
         
         # Ensure directory exists
-        os.makedirs(AVATAR_DIR, exist_ok=True)
+        if not os.environ.get("VERCEL"):
+            os.makedirs(AVATAR_DIR, exist_ok=True)
         
         # Save the file
         with open(filepath, "wb") as buffer:
