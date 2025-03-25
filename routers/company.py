@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from db.database import get_db
@@ -8,6 +8,9 @@ from models.job import DbJob
 from schemas.company import CompanyCreate, Company as CompanySchema
 from schemas.job import Job as JobSchema
 from utils.token_utils import get_current_user
+import shutil
+import os
+from uuid import uuid4
 
 router = APIRouter(
     prefix="/companies",
@@ -66,15 +69,35 @@ def get_company_jobs(
     return db.query(DbJob).filter(DbJob.company_id == company_id).all()
 
 
+
+
+# Add this at the top of the file with other imports
+AVATAR_DIR = "static/company_avatars"
+ALLOWED_EXTENSIONS = {".svg", ".png", ".jpg", ".jpeg"}
+
+def is_valid_image(filename: str) -> bool:
+    return any(filename.lower().endswith(ext) for ext in ALLOWED_EXTENSIONS)
+
+def get_file_extension(filename: str) -> str:
+    return os.path.splitext(filename)[1].lower()
+
 @router.post("/register_company", response_model=CompanySchema)
 async def create_company(
-    company: CompanyCreate,
+    company_name: str = Form(...),
+    company_description: str = Form(None),
+    remote: str = Form(None),
+    company_location: str = Form(None),
+    company_type: str = Form(None),
+    industry_type: str = Form(None),
+    business_nature: str = Form(None),
+    employee_count: str = Form(None),
+    avatar: UploadFile = File(None),
     db: Session = Depends(get_db),
     current_user: DbUser = Depends(get_current_user)
 ):
     # Check if company with same name already exists
     existing_company = db.query(DbCompany).filter(
-        DbCompany.company_name == company.company_name
+        DbCompany.company_name == company_name
     ).first()
 
     if existing_company:
@@ -87,9 +110,48 @@ async def create_company(
             }
         )
 
+    # Handle avatar upload
+    avatar_url = None
+    if avatar:
+        if not is_valid_image(avatar.filename):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "Invalid file type",
+                    "error": "Only SVG, PNG, and JPEG files are allowed",
+                    "solution": "Please upload a valid image file"
+                }
+            )
+        
+        # Create unique filename
+        file_ext = get_file_extension(avatar.filename)
+        filename = f"{uuid4()}{file_ext}"
+        filepath = os.path.join(AVATAR_DIR, filename)
+        
+        # Ensure directory exists
+        os.makedirs(AVATAR_DIR, exist_ok=True)
+        
+        # Save the file
+        with open(filepath, "wb") as buffer:
+            shutil.copyfileobj(avatar.file, buffer)
+        
+        # Generate URL for the avatar
+        avatar_url = f"/static/company_avatars/{filename}"
+
     try:
-        db_company = DbCompany(**company.model_dump(),
-                               owner_id=current_user.id)
+        # Create company with form data
+        db_company = DbCompany(
+            company_name=company_name,
+            company_description=company_description,
+            remote=remote,
+            company_location=company_location,
+            company_type=company_type,
+            industry_type=industry_type,
+            business_nature=business_nature,
+            employee_count=employee_count,
+            company_avatar=avatar_url,
+            owner_id=current_user.id
+        )
         db.add(db_company)
         db.commit()
         db.refresh(db_company)
