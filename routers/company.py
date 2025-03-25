@@ -11,6 +11,7 @@ from utils.token_utils import get_current_user
 import shutil
 import os
 from uuid import uuid4
+from utils.file_storage import save_upload_file, get_file_url
 
 router = APIRouter(
     prefix="/companies",
@@ -71,8 +72,7 @@ def get_company_jobs(
 
 
 
-# Add this at the top of the file with other imports
-AVATAR_DIR = "static/company_avatars"
+# File configuration
 ALLOWED_EXTENSIONS = {".svg", ".png", ".jpg", ".jpeg"}
 
 def is_valid_image(filename: str) -> bool:
@@ -123,21 +123,21 @@ async def create_company(
                 }
             )
         
-        # Create unique filename
+        # Create unique filename with extension
         file_ext = get_file_extension(avatar.filename)
-        filename = f"{uuid4()}{file_ext}"
-        filepath = os.path.join(AVATAR_DIR, filename)
+        filename = f"company_avatars/{uuid4()}{file_ext}"
         
-        # Ensure directory exists
-        if not os.environ.get("VERCEL"):
-            os.makedirs(AVATAR_DIR, exist_ok=True)
-        
-        # Save the file
-        with open(filepath, "wb") as buffer:
-            shutil.copyfileobj(avatar.file, buffer)
-        
-        # Generate URL for the avatar
-        avatar_url = f"/static/company_avatars/{filename}"
+        # Save file and get URL
+        try:
+            avatar_url = await save_upload_file(avatar, filename)
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail={
+                    "message": "Error uploading file",
+                    "error": str(e)
+                }
+            )
 
     try:
         # Create company with form data

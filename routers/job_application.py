@@ -8,7 +8,7 @@ from models.job_application import DbJobApplication
 from schemas.job_application import JobApplicationCreate, JobApplication
 from utils.token_utils import get_current_user
 from routers.auth import oauth2_scheme
-import os
+from utils.file_storage import save_upload_file, get_file_url
 from datetime import datetime
 import uuid
 
@@ -18,9 +18,11 @@ router = APIRouter(
     tags=["Job Applications"]
 )
 
-# Create uploads directory if it doesn't exist
-UPLOAD_DIR = "uploads/resumes"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+# Allowed file extensions for resumes
+ALLOWED_EXTENSIONS = {".pdf", ".doc", ".docx"}
+
+def is_valid_resume(filename: str) -> bool:
+    return any(filename.lower().endswith(ext) for ext in ALLOWED_EXTENSIONS)
 
 
 @router.post("/", response_model=JobApplication)
@@ -54,37 +56,59 @@ async def create_application(
             detail="You have already applied for this job"
         )
 
-    # Save resume file
-    file_extension = os.path.splitext(resume.filename)[1]
-    unique_filename = f"{uuid.uuid4()}{file_extension}"
-    resume_path = os.path.join(UPLOAD_DIR, unique_filename)
+    # Validate and save resume file
+    if not is_valid_resume(resume.filename):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "message": "Invalid file type",
+                "error": "Only PDF, DOC, and DOCX files are allowed",
+                "solution": "Please upload a valid resume file"
+            }
+        )
 
+    # Generate unique filename
+    file_extension = os.path.splitext(resume.filename)[1].lower()
+    filename = f"resumes/{uuid.uuid4()}{file_extension}"
+    
+    # Save file and get URL
     try:
-        with open(resume_path, "wb") as buffer:
-            content = await resume.read()
-            buffer.write(content)
+        resume_url = await save_upload_file(resume, filename)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to save resume file"
+            detail={
+                "message": "Error uploading resume",
+                "error": str(e)
+            }
         )
-
-    # Create application record
-    db_application = DbJobApplication(
-        job_id=job_id,
-        applicant_id=current_user.id,
-        email=email,
-        phone=phone,
-        current_ctc=current_ctc,
-        expected_ctc=expected_ctc,
-        notice_period=notice_period,
-        resume_path=resume_path,
-        status="pending"
-    )
-    db.add(db_application)
-    db.commit()
-    db.refresh(db_application)
-    return db_application
+    try:
+        # Create application record
+        db_application = DbJobApplication(
+            job_id=job_id,
+            applicant_id=current_user.id,
+            email=email,
+            phone=phone,
+            current_ctc=current_ctc,
+            expected_ctc=expected_ctc,
+            notice_period=notice_period,
+            resume_path=resume_url,  # Use the URL from file storage
+            status="pending",
+            applied_at=datetime.utcnow()
+        )
+        db.add(db_application)
+        db.commit()
+        db.refresh(db_application)
+        return db_application
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "message": "Error creating job application",
+                "error": str(e)
+            }
+        )
 
 
 @router.get("/", response_model=List[JobApplication])
