@@ -8,7 +8,7 @@ from seed.seed_data import seed_all_data
 Base.metadata.create_all(bind=engine)
 
 # Initialize data
-seed_all_data()
+# seed_all_data()
 
 app = FastAPI(
     title="Hire Me API",

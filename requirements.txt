@@ -10,3 +10,4 @@ pydantic_settings
 pydantic[email]
 jinja2
 bcrypt
+psycopg2-binary
