@@ -3,7 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from db.database import Base, engine
 from routers import auth, company, job, job_application, saved_job, contact
 from seed.seed_data import seed_all_data
-
+from fastapi.middleware.cors import CORSMiddleware
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
@@ -15,6 +15,16 @@ app = FastAPI(
     description="API for Hire Me application",
     version="1.0.0"
 )
+
+#CORS middleware configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # Mount static files directory
 app.mount("/static", StaticFiles(directory="static"), name="static")
