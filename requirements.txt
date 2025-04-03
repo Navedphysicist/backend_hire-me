@@ -11,3 +11,5 @@ pydantic[email]
 jinja2
 bcrypt
 psycopg2-binary
+redis
+fastapi-cache2

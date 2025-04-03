@@ -1,16 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 from sqlalchemy.orm import Session, joinedload
-from typing import List, Optional
+from typing import List
 from db.database import get_db
 from models.user import DbUser
 from models.job import DbJob
 from models.job_application import DbJobApplication
-from schemas.job_application import JobApplicationCreate, JobApplication
+from schemas.job_application import JobApplication
 from utils.token_utils import get_current_user
-from routers.auth import oauth2_scheme
-from utils.file_storage import save_upload_file, get_file_url
+from utils.file_storage import save_upload_file
 from datetime import datetime
 import uuid
+import os
 
 
 router = APIRouter(

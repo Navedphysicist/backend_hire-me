@@ -8,6 +8,7 @@ from models.job import DbJob
 from models.company import DbCompany
 from schemas.job import JobCreate, Job as JobSchema
 from utils.token_utils import get_current_user
+from fastapi_cache.decorator import cache
 
 router = APIRouter(
     prefix="/jobs",
@@ -16,7 +17,8 @@ router = APIRouter(
 
 
 @router.get("/", response_model=List[JobSchema])
-def get_jobs(
+@cache(expire=300)  # Cache for 5 minutes
+async def get_jobs(
     role: Optional[str] = Query(None, description="Filter by job role/title"),
     location: Optional[str] = Query(
         None, description="Filter by job location"),
