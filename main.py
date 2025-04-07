@@ -45,7 +45,7 @@ app.include_router(auth.router, tags=["Authentication"])
 app.include_router(job.router, tags=["Jobs"])
 app.include_router(company.router, tags=["Companies"])
 app.include_router(job_application.router, tags=["Job Applications"])
-app.include_router(saved_job.router, prefix="/saved-jobs", tags=["Saved Jobs"])
+app.include_router(saved_job.router, tags=["Saved Jobs"])
 app.include_router(contact.router, tags=["Contact"])
 
 @app.on_event("startup")
