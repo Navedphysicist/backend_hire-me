@@ -8,7 +8,7 @@ from models.job_application import DbJobApplication
 from schemas.job_application import JobApplication
 from utils.token_utils import get_current_user
 from utils.file_storage import save_upload_file
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 import os
 
@@ -94,7 +94,7 @@ async def create_application(
             notice_period=notice_period,
             resume_path=resume_url,  # Use the URL from file storage
             status="pending",
-            applied_at=datetime.utcnow()
+            created_at=datetime.now(timezone.utc)
         )
         db.add(db_application)
         db.commit()
