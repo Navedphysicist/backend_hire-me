@@ -124,12 +124,14 @@ def create_company(
             )
         
         # Create unique filename with extension
+        # Prepare filename and folder separately
         file_ext = get_file_extension(avatar.filename)
-        filename = f"company_avatars/{uuid4()}{file_ext}"
+        filename = f"{company_name}{file_ext}"
+        folder_path = "company_avatars"
         
         # Save file and get URL
         try:
-            avatar_url =  save_upload_file(avatar, filename)
+            avatar_url =  save_upload_file(avatar, filename,folder=folder_path)
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
