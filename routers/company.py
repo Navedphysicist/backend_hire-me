@@ -82,7 +82,7 @@ def get_file_extension(filename: str) -> str:
     return os.path.splitext(filename)[1].lower()
 
 @router.post("/register_company", response_model=CompanySchema)
-async def create_company(
+def create_company(
     company_name: str = Form(...),
     company_description: str = Form(None),
     remote: str = Form(None),
@@ -129,7 +129,7 @@ async def create_company(
         
         # Save file and get URL
         try:
-            avatar_url = await save_upload_file(avatar, filename)
+            avatar_url =  save_upload_file(avatar, filename)
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

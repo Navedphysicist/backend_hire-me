@@ -26,7 +26,7 @@ def is_valid_resume(filename: str) -> bool:
 
 
 @router.post("/", response_model=JobApplication)
-async def create_application(
+def create_application(
     job_id: int = Form(...),
     email: str = Form(...),
     phone: str = Form(...),
@@ -73,7 +73,7 @@ async def create_application(
     
     # Save file and get URL
     try:
-        resume_url = await save_upload_file(resume, filename)
+        resume_url = save_upload_file(resume, filename)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
