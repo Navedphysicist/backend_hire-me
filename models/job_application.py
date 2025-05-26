@@ -19,9 +19,9 @@ class DbJobApplication(Base):
     resume_path = Column(String, nullable=True)
     # pending, reviewed, accepted, rejected
     status = Column(String, default="pending")
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, nullable=True,
-                        onupdate=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
 
     # Relationships
     job = relationship("DbJob", back_populates="applications")

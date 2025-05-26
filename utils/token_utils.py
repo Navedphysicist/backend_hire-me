@@ -1,12 +1,17 @@
+from fastapi import Depends, HTTPException, status
 from datetime import datetime, timedelta, timezone
+from db.database import get_db
 from typing import Optional
-from jose import jwt, JWTError
+from jose import jwt, JWTError,ExpiredSignatureError
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from core.config import settings
 from models.user import DbUser
 from schemas.token import TokenData
+from fastapi.security import OAuth2PasswordBearer
 
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")  # or your login route
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """
@@ -34,18 +39,8 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     return encoded_jwt
 
 
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
-from sqlalchemy.orm import Session
-from db.database import get_db
-from models.user import DbUser
-from schemas.token import TokenData
-from core.config import settings  # Adjust as needed
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")  # or your login route
-
-async def get_current_user(
+def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
 ) -> DbUser:
@@ -73,6 +68,12 @@ async def get_current_user(
         if username is None:
             raise credentials_exception
         token_data = TokenData(username=username)
+    except ExpiredSignatureError:
+        raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Token has expired, Please login again",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     except JWTError:
         raise credentials_exception
 

@@ -48,7 +48,7 @@ def is_otp_expired(timestamp: datetime) -> bool:
 
 
 @router.post("/signup", status_code=status.HTTP_201_CREATED)
-async def signup(user: UserCreate, db: Session = Depends(get_db)):
+def signup(user: UserCreate, db: Session = Depends(get_db)):
     # Check if username exists in verified users
     if db.query(DbUser).filter(DbUser.username == user.username).first():
         raise HTTPException(
@@ -103,7 +103,7 @@ async def signup(user: UserCreate, db: Session = Depends(get_db)):
 
 
 @router.post("/verify-email", status_code=status.HTTP_200_OK)
-async def verify_email(verify_data: VerifyEmail, db: Session = Depends(get_db)):
+def verify_email(verify_data: VerifyEmail, db: Session = Depends(get_db)):
     # Check if email exists in unverified users
     if verify_data.email not in unverified_users:
         raise HTTPException(
@@ -146,7 +146,7 @@ async def verify_email(verify_data: VerifyEmail, db: Session = Depends(get_db)):
 
 
 @router.post("/login", response_model=Token)
-async def login(
+def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):

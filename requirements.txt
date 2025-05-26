@@ -13,3 +13,4 @@ bcrypt
 psycopg2-binary
 redis
 fastapi-cache2
+cloudinary
