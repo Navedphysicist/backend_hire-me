@@ -24,9 +24,11 @@ def get_file_url(filename: str) -> str:
 
 def save_upload_file(upload_file: UploadFile, filename: str,folder: Optional[str] = "") -> Optional[str]:
     """Save an uploaded file and return its URL"""
+    filename_without_path = os.path.basename(filename)
+    public_id = os.path.splitext(filename_without_path)[0]
     if os.getenv("VERCEL"):
         # Upload to Cloudinary in production
-        result = cloudinary.uploader.upload(upload_file.file, public_id=filename,folder=f"static/{folder}")
+        result = cloudinary.uploader.upload(upload_file.file, public_id=public_id,folder=f"static/{folder}")
         return result["secure_url"]
     else:
         # Local development: save to static directory
