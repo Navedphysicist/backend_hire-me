@@ -17,7 +17,7 @@ router = APIRouter(
 
 
 @router.post("/", response_model=SavedJob)
-async def save_job(
+def save_job(
     saved_job: SavedJobCreate,
     db: Session = Depends(get_db),
     current_user: DbUser = Depends(get_current_user)
@@ -52,7 +52,7 @@ async def save_job(
 
 
 @router.get("/", response_model=List[SavedJob])
-async def read_saved_jobs(
+def read_saved_jobs(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
@@ -67,7 +67,7 @@ async def read_saved_jobs(
 
 
 @router.delete("/{saved_job_id}")
-async def delete_saved_job(
+def delete_saved_job(
     saved_job_id: int,
     db: Session = Depends(get_db),
     current_user: DbUser = Depends(get_current_user)

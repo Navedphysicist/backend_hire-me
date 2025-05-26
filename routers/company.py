@@ -20,7 +20,7 @@ router = APIRouter(
 
 
 @router.get("/", response_model=List[CompanySchema])
-async def read_companies(
+def read_companies(
     skip: int = 0,
     limit: int = 100,
     type: Optional[str] = Query(None, description="Filter by company type"),
@@ -49,7 +49,7 @@ def get_all_companies(
 
 
 @router.get("/{company_id}", response_model=CompanySchema)
-async def read_company(
+def read_company(
     company_id: int,
     db: Session = Depends(get_db)
 ):

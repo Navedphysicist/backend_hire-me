@@ -36,6 +36,7 @@ app.include_router(saved_job.router, tags=["Saved Jobs"])
 app.include_router(contact.router, tags=["Contact"])
 
 @app.get("/")
+
 def root():
     return {
         "message": "Welcome to Hire Me API",

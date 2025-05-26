@@ -112,7 +112,7 @@ async def create_application(
 
 
 @router.get("/", response_model=List[JobApplication])
-async def read_applications(
+def read_applications(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),

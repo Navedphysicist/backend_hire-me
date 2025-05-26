@@ -22,7 +22,7 @@ def get_file_url(filename: str) -> str:
         # In local development, serve from static directory
         return f"/static/{filename}"
 
-async def save_upload_file(upload_file: UploadFile, filename: str) -> Optional[str]:
+def save_upload_file(upload_file: UploadFile, filename: str) -> Optional[str]:
     """Save an uploaded file and return its URL"""
     if os.getenv("VERCEL"):
         # Upload to Cloudinary in production
