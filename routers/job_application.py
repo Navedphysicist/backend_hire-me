@@ -9,8 +9,7 @@ from schemas.job_application import JobApplication
 from utils.token_utils import get_current_user
 from utils.file_storage import save_upload_file
 from datetime import datetime, timezone
-import uuid
-import os
+from pathlib import Path
 
 
 router = APIRouter(
@@ -68,12 +67,14 @@ def create_application(
         )
 
     # Generate unique filename
-    file_extension = os.path.splitext(resume.filename)[1].lower()
-    filename = f"resumes/{uuid.uuid4()}{file_extension}"
-    
-    # Save file and get URL
+    file_ext = Path(resume.filename).suffix.lower()
+    email_prefix = email.split("@")[0] 
+    filename = f"{email_prefix}{file_ext}"
+    folder_path = "resumes"
+    resource_type = "raw"
+
     try:
-        resume_url = save_upload_file(resume, filename)
+        resume_url = save_upload_file(resume, filename, folder_path, resource_type)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from db.database import Base, engine
 from routers import auth, company, job, job_application, saved_job, contact
+from core.config import settings
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -24,7 +25,7 @@ app.add_middleware(
 )
 
 # Mount static files directory only locally
-if not os.getenv("VERCEL"):
+if not settings.VERCEL:
     app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Include routers

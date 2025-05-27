@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     CLOUDINARY_API_KEY: str
     CLOUDINARY_API_SECRET: str
 
+    # Deployment environment
+    VERCEL: bool = False
+
     class Config:
         env_file = ".env"
         extra = "ignore"

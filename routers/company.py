@@ -9,9 +9,10 @@ from schemas.company import CompanyCreate, Company as CompanySchema
 from schemas.job import Job as JobSchema
 from utils.token_utils import get_current_user
 import shutil
+from pathlib import Path
 import os
 from uuid import uuid4
-from utils.file_storage import save_upload_file, get_file_url
+from utils.file_storage import save_upload_file
 
 router = APIRouter(
     prefix="/companies",
@@ -78,9 +79,6 @@ ALLOWED_EXTENSIONS = {".svg", ".png", ".jpg", ".jpeg"}
 def is_valid_image(filename: str) -> bool:
     return any(filename.lower().endswith(ext) for ext in ALLOWED_EXTENSIONS)
 
-def get_file_extension(filename: str) -> str:
-    return os.path.splitext(filename)[1].lower()
-
 @router.post("/register_company", response_model=CompanySchema)
 def create_company(
     company_name: str = Form(...),
@@ -122,16 +120,14 @@ def create_company(
                     "solution": "Please upload a valid image file"
                 }
             )
-        
-        # Create unique filename with extension
-        # Prepare filename and folder separately
-        file_ext = get_file_extension(avatar.filename)
+
+        file_ext = Path(avatar.filename).suffix.lower()
         filename = f"{company_name}{file_ext}"
         folder_path = "company_avatars"
-        
-        # Save file and get URL
+        resource_type = "image"
+
         try:
-            avatar_url =  save_upload_file(avatar, filename,folder=folder_path)
+            avatar_url =  save_upload_file(avatar,filename,folder_path, resource_type)
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
