@@ -17,10 +17,9 @@ if os.getenv('VERCEL'):
 
 def save_upload_file(upload_file: UploadFile, filename: str,folder: Optional[str] = "",resource_type:Optional[str]= ""):
     path = Path(filename)
-    public_id = path.stem
+    public_id = path.name
 
     if settings.VERCEL:
-
         result = cloudinary.uploader.upload(
             upload_file.file,
             public_id=public_id,folder=f"static/{folder}",
