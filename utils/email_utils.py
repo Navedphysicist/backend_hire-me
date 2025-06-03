@@ -1,43 +1,37 @@
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-import random
-import string
-from jinja2 import Environment, FileSystemLoader
-from pathlib import Path
+from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 from core.config import settings
+from pathlib import Path
 
+conf = ConnectionConfig(
+    MAIL_USERNAME=settings.MAIL_USERNAME,
+    MAIL_PASSWORD=settings.MAIL_PASSWORD,
+    MAIL_FROM=settings.MAIL_FROM,
+    MAIL_PORT=settings.MAIL_PORT,
+    MAIL_SERVER=settings.MAIL_SERVER,
+    MAIL_FROM_NAME=settings.MAIL_FROM_NAME,
+    MAIL_STARTTLS=settings.MAIL_STARTTLS,
+    MAIL_SSL_TLS=settings.MAIL_SSL_TLS,
+    USE_CREDENTIALS=settings.USE_CREDENTIALS,
+    TEMPLATE_FOLDER=Path(__file__).parent.parent / "templates"
+)
 
 def generate_otp(length: int = 6) -> str:
-    """Generate a random OTP of specified length"""
+    import random, string
     return ''.join(random.choices(string.digits, k=length))
 
-
-def send_verification_email(email: str, otp: str) -> bool:
-    """Send verification email with OTP"""
+async def send_verification_email(email: str, otp: str):
     try:
-        # Create message
-        msg = MIMEMultipart()
-        msg['From'] = settings.SMTP_USERNAME
-        msg['To'] = email
-        msg['Subject'] = "Verify your email address"
+        message = MessageSchema(
+            subject="Verify your email address",
+            recipients=[email],
+            template_body={"otp": otp},
+            subtype="html"
+        )
 
-        # Load and render template
-        template_dir = Path(__file__).parent.parent / 'templates'
-        env = Environment(loader=FileSystemLoader(template_dir))
-        template = env.get_template('verification_email.html')
-        html_content = template.render(otp=otp)
-
-        # Attach HTML content
-        msg.attach(MIMEText(html_content, 'html'))
-
-        # Send email
-        with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
-            server.starttls()
-            server.login(settings.SMTP_USERNAME, settings.SMTP_PASSWORD)
-            server.send_message(msg)
-
+        fm = FastMail(conf)
+        await fm.send_message(message, template_name="verification_email.html")
         return True
+
     except Exception as e:
-        print(f"Error sending email: {str(e)}")
+        print(f"Unexpected error while sending email: {e}")
         return False

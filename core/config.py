@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
 from typing import Optional
+from pydantic import EmailStr
 
 
 class Settings(BaseSettings):
@@ -8,11 +9,16 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
-    # SMTP Settings
-    SMTP_HOST: str
-    SMTP_PORT: int 
-    SMTP_USERNAME: str
-    SMTP_PASSWORD: str
+    # MAIL Settings
+    MAIL_USERNAME: EmailStr
+    MAIL_PASSWORD: str
+    MAIL_FROM: EmailStr
+    MAIL_PORT: int
+    MAIL_SERVER: str
+    MAIL_FROM_NAME: str = "Progression School"
+    MAIL_STARTTLS: bool = True
+    MAIL_SSL_TLS: bool = False
+    USE_CREDENTIALS: bool = True
 
     # Cloudinary
     CLOUDINARY_CLOUD_NAME: str
