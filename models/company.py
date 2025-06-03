@@ -8,7 +8,7 @@ class DbCompany(Base):
     __tablename__ = "companies"
 
     id = Column(Integer, primary_key=True, index=True)
-    company_name = Column(String, index=True)
+    company_name = Column(String,unique=True,nullable=False ,index=True)
     company_avatar = Column(String)
     company_description = Column(String)
     remote = Column(String)

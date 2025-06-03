@@ -1,4 +1,3 @@
-import os
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,15 +10,14 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Hire Me API",
-    description="API for Hire Me application",
-    version="1.0.0"
+    description="API for Hire Me application"
 )
 
 # CORS middleware configuration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -36,8 +34,8 @@ app.include_router(job_application.router, tags=["Job Applications"])
 app.include_router(saved_job.router, tags=["Saved Jobs"])
 app.include_router(contact.router, tags=["Contact"])
 
-@app.get("/")
 
+@app.get("/")
 def root():
     return {
         "message": "Welcome to Hire Me API",

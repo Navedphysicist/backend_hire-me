@@ -11,6 +11,9 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
 
+class VerifyEmail(BaseModel):
+    email: str
+    verification_code: str
 
 class User(UserBase):
     id: int

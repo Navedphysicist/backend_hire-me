@@ -1,36 +1,28 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta, datetime, timezone
 from db.database import get_db
 from models.user import DbUser
-from schemas.user import UserCreate
+from schemas.user import UserCreate,VerifyEmail
 from schemas.token import Token
 from utils.password_utils import get_password_hash, verify_password
 from utils.email_utils import generate_otp, send_verification_email
 from utils.token_utils import create_access_token
 from core.config import settings
-from pydantic import BaseModel
 from typing import Dict
+
 
 router = APIRouter(
     prefix="/auth",
     tags=["Authentication"]
 )
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
-
 # Temporary storage for unverified users
 unverified_users: Dict[str, dict] = {}
 
 # OTP expiration time in minutes
 OTP_EXPIRY_MINUTES = 5
-
-
-class VerifyEmail(BaseModel):
-    email: str
-    verification_code: str
-
 
 def authenticate_user(db: Session, username: str, password: str):
     user = db.query(DbUser).filter(DbUser.username == username).first()

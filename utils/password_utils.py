@@ -1,8 +1,6 @@
 from passlib.context import CryptContext
-from core.config import settings
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
+pwd_context = CryptContext(schemes=["bcrypt"])
 
 def get_password_hash(password: str) -> str:
     """Hash a password"""

@@ -22,31 +22,25 @@ router = APIRouter(
 
 @router.get("/", response_model=List[CompanySchema])
 def read_companies(
-    skip: int = 0,
-    limit: int = 100,
-    type: Optional[str] = Query(None, description="Filter by company type"),
-    location: Optional[str] = Query(
-        None, description="Filter by company location"),
+    type: Optional[str] = Query(None, description="Filter by company type (for example: Indian,foreign) "),
+    location: Optional[str] = Query(None, description="Filter by company location"),
     db: Session = Depends(get_db)
 ):
     query = db.query(DbCompany)
 
-    if type:
+    if type and type.strip():
+        print(type,"type")
         query = query.filter(DbCompany.company_type.ilike(f"%{type}%"))
-    if location:
+    if location and location.strip():
         query = query.filter(DbCompany.company_location.ilike(f"%{location}%"))
 
-    companies = query.offset(skip).limit(limit).all()
+    companies = query.all()
     return companies
 
 
 @router.get("/get_companies", response_model=List[CompanySchema])
-def get_all_companies(
-    skip: int = 0,
-    limit: int = 100,
-    db: Session = Depends(get_db)
-):
-    return db.query(DbCompany).offset(skip).limit(limit).all()
+def get_all_companies( db: Session = Depends(get_db)):
+    return db.query(DbCompany).all()
 
 
 @router.get("/{company_id}", response_model=CompanySchema)
@@ -68,9 +62,8 @@ def get_company_jobs(
     company = db.query(DbCompany).filter(DbCompany.id == company_id).first()
     if company is None:
         raise HTTPException(status_code=404, detail="Company not found")
+    
     return db.query(DbJob).filter(DbJob.company_id == company_id).all()
-
-
 
 
 # File configuration
@@ -155,6 +148,7 @@ def create_company(
         db.commit()
         db.refresh(db_company)
         return db_company
+    
     except Exception as e:
         db.rollback()
         raise HTTPException(

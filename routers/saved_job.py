@@ -7,7 +7,6 @@ from models.job import DbJob
 from models.saved_job import DbSavedJob
 from schemas.saved_job import SavedJobCreate, SavedJob
 from utils.token_utils import get_current_user
-from routers.auth import oauth2_scheme
 from fastapi.security import OAuth2PasswordBearer
 
 router = APIRouter(
