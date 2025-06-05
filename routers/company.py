@@ -20,7 +20,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=List[CompanySchema])
+@router.get("", response_model=List[CompanySchema])
 def read_companies(
     type: Optional[str] = Query(None, description="Filter by company type (for example: Indian,foreign) "),
     location: Optional[str] = Query(None, description="Filter by company location"),
@@ -36,11 +36,6 @@ def read_companies(
 
     companies = query.all()
     return companies
-
-
-@router.get("/get_companies", response_model=List[CompanySchema])
-def get_all_companies( db: Session = Depends(get_db)):
-    return db.query(DbCompany).all()
 
 
 @router.get("/{company_id}", response_model=CompanySchema)

@@ -7,7 +7,9 @@ from models.user import DbUser
 from models.job import DbJob
 from models.company import DbCompany
 from schemas.job import JobCreate, Job as JobSchema
+from models.job_application import DbJobApplication
 from utils.token_utils import get_current_user
+
 
 router = APIRouter(
     prefix="/jobs",
@@ -15,42 +17,48 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=List[JobSchema])
+@router.get("", response_model=List[JobSchema])
 def get_jobs(
     role: Optional[str] = Query(None, description="Filter by job role/title"),
-    location: Optional[str] = Query(
-        None, description="Filter by job location"),
+    location: Optional[str] = Query(None, description="Filter by job location"),
     search: Optional[str] = Query(None, description="Search jobs by keywords"),
-    skip: int = 0,
-    limit: int = 100,
     db: Session = Depends(get_db)
 ):
-    query = db.query(DbJob).join(DbCompany)
+    query = db.query(DbJob)
 
-    if role:
+    if role and role.strip():
         query = query.filter(DbJob.job_title.ilike(f"%{role}%"))
-    if location:
+    if location and location.strip():
         query = query.filter(DbJob.place.ilike(f"%{location}%"))
-    if search:
+    if search and search.strip():
         query = query.filter(
             (DbJob.job_title.ilike(f"%{search}%")) |
             (DbJob.job_description.ilike(f"%{search}%")) |
             (DbJob.skills.cast(String).ilike(f"%{search}%"))
         )
 
-    return query.offset(skip).limit(limit).all()
+    return query.all()
 
 
-@router.get("/posted_jobs", response_model=List[JobSchema])
+@router.get("/posted_jobs",response_model=List[JobSchema])
 def get_posted_jobs(
     db: Session = Depends(get_db),
     current_user: DbUser = Depends(get_current_user)
 ):
-    return db.query(DbJob).options(
-        joinedload(DbJob.applications)
-    ).filter(
-        DbJob.creator_id == current_user.id
+    return db.query(DbJob).filter(DbJob.creator_id == current_user.id).all()
+
+
+@router.get("/applied_jobs", response_model=List[JobSchema])
+def get_applied_jobs(
+    db: Session = Depends(get_db),
+    current_user: DbUser = Depends(get_current_user)
+):
+    jobs = db.query(DbJob).join(DbJobApplication).filter(
+        DbJobApplication.applicant_id == current_user.id
     ).all()
+
+    return jobs
+
 
 
 @router.get("/{job_id}", response_model=JobSchema)
@@ -61,7 +69,7 @@ def get_job(job_id: int, db: Session = Depends(get_db)):
     return job
 
 
-@router.post("/", response_model=JobSchema)
+@router.post("", response_model=JobSchema)
 def create_job(
     job: JobCreate,
     db: Session = Depends(get_db),
@@ -91,10 +99,7 @@ def create_job(
                 "message": "Incomplete company profile",
                 "error": "Your company profile is incomplete",
                 "solution": "Please complete your company profile before posting jobs",
-                "missing_fields": [
-                    field for field in ["company_description", "company_location"]
-                    if not getattr(company, field)
-                ]
+                "missing_fields": ["company_description", "company_location"]
             }
         )
 
@@ -129,3 +134,5 @@ def create_job(
                 "solution": "Please try again or contact support if the issue persists"
             }
         )
+
+

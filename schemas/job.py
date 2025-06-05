@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
-from .company import Company
+from schemas.company import Company
 
 
 class JobBase(BaseModel):

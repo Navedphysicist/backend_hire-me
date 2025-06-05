@@ -21,7 +21,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 # Mount static files directory only locally
 if not settings.VERCEL:
     app.mount("/static", StaticFiles(directory="static"), name="static")

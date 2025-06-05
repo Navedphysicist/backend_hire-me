@@ -15,7 +15,7 @@ router = APIRouter(
 )
 
 
-@router.post("/", response_model=SavedJob)
+@router.post("", response_model=SavedJob)
 def save_job(
     saved_job: SavedJobCreate,
     db: Session = Depends(get_db),
@@ -50,10 +50,8 @@ def save_job(
     return db_saved_job
 
 
-@router.get("/", response_model=List[SavedJob])
+@router.get("", response_model=List[SavedJob])
 def read_saved_jobs(
-    skip: int = 0,
-    limit: int = 100,
     db: Session = Depends(get_db),
     current_user: DbUser = Depends(get_current_user)
 ):
@@ -61,7 +59,7 @@ def read_saved_jobs(
         joinedload(DbSavedJob.job)
     ).filter(
         DbSavedJob.user_id == current_user.id
-    ).offset(skip).limit(limit).all()
+    ).all()
     return saved_jobs
 
 

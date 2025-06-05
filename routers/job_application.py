@@ -13,7 +13,6 @@ from pathlib import Path
 
 
 router = APIRouter(
-    prefix="/applications",
     tags=["Job Applications"]
 )
 
@@ -24,7 +23,7 @@ def is_valid_resume(filename: str) -> bool:
     return any(filename.lower().endswith(ext) for ext in ALLOWED_EXTENSIONS)
 
 
-@router.post("/", response_model=JobApplication)
+@router.post("/apply", response_model=JobApplication)
 def create_application(
     job_id: int = Form(...),
     email: str = Form(...),
@@ -112,17 +111,19 @@ def create_application(
         )
 
 
-@router.get("/", response_model=List[JobApplication])
-def read_applications(
-    skip: int = 0,
-    limit: int = 100,
+@router.get("/applications/{job_id}", response_model=List[JobApplication])
+def get_applications_for_job(
+    job_id: int,
     db: Session = Depends(get_db),
     current_user: DbUser = Depends(get_current_user)
 ):
-    applications = db.query(DbJobApplication).options(
-        joinedload(DbJobApplication.job),
-        joinedload(DbJobApplication.applicant)
-    ).filter(
-        DbJobApplication.applicant_id == current_user.id
-    ).offset(skip).limit(limit).all()
+    applications = db.query(DbJobApplication).filter(
+        DbJobApplication.job_id == job_id
+    ).all()
+
+    if not applications:
+         raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No application found for this Job"
+        )
     return applications

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
-from .job import Job
+from schemas.job import Job
 from .user import User
 
 

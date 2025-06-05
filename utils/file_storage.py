@@ -8,11 +8,11 @@ from pathlib import Path
 from core.config import settings
 
 # Configure Cloudinary
-if os.getenv('VERCEL'):
+if settings.VERCEL:
     cloudinary.config(
-        cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
-        api_key=os.getenv('CLOUDINARY_API_KEY'),
-        api_secret=os.getenv('CLOUDINARY_API_SECRET')
+        cloud_name=settings.CLOUDINARY_CLOUD_NAME,
+        api_key=settings.CLOUDINARY_API_KEY,
+        api_secret=settings.CLOUDINARY_API_SECRET
     )
 
 def save_upload_file(upload_file: UploadFile, filename: str,folder: Optional[str] = "",resource_type:Optional[str]= ""):
