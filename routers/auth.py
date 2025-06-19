@@ -38,6 +38,21 @@ def is_otp_expired(timestamp: datetime) -> bool:
     now = datetime.now(timezone.utc)
     return (now - timestamp).total_seconds() > (OTP_EXPIRY_MINUTES * 60)
 
+"""
+1. Create a temperory Storage for unverified users.
+2. Check if username already exists in the DB
+3. Check if the email already exists in DB
+4. Check if the email already exists in the temperory Storage
+- if yes, check otp is expired or not
+- if yes, expired -> remove from the temperory storage and create a Temperory storage with the email and otp
+- if no,  not expired -> raise an error that email already registered pls verify done
+- if not exist in temperory storage,create a Temperory storage with the email and otp
+- now send an email with the otp
+- if fail, raise erorr
+else success
+"""
+
+
 
 @router.post("/signup", status_code=status.HTTP_201_CREATED)
 async def signup(user: UserCreate, db: Session = Depends(get_db)):

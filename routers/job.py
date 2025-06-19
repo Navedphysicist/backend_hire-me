@@ -48,16 +48,7 @@ def get_posted_jobs(
     return db.query(DbJob).filter(DbJob.creator_id == current_user.id).all()
 
 
-@router.get("/applied_jobs", response_model=List[JobSchema])
-def get_applied_jobs(
-    db: Session = Depends(get_db),
-    current_user: DbUser = Depends(get_current_user)
-):
-    jobs = db.query(DbJob).join(DbJobApplication).filter(
-        DbJobApplication.applicant_id == current_user.id
-    ).all()
 
-    return jobs
 
 
 

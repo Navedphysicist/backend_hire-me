@@ -10,6 +10,7 @@ from utils.token_utils import get_current_user
 from utils.file_storage import save_upload_file
 from datetime import datetime, timezone
 from pathlib import Path
+from schemas.job import JobCreate, Job as JobSchema
 
 
 router = APIRouter(
@@ -127,3 +128,14 @@ def get_applications_for_job(
             detail="No application found for this Job"
         )
     return applications
+
+@router.get("/applied_jobs", response_model=List[JobSchema])
+def get_applied_jobs(
+    db: Session = Depends(get_db),
+    current_user: DbUser = Depends(get_current_user)
+):
+    jobs = db.query(DbJob).join(DbJobApplication).filter(
+        DbJobApplication.applicant_id == current_user.id
+    ).all()
+
+    return jobs

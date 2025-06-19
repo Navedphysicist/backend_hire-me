@@ -44,19 +44,6 @@ def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
 ):
-    """
-    Get the current user from the JWT token.
-
-    Args:
-        token (str): JWT token (injected via Depends)
-        db (Session): DB session (injected via Depends)
-
-    Returns:
-        DbUser: Authenticated user
-
-    Raises:
-        HTTPException: If token is invalid or user is not found
-    """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
